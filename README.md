@@ -18,7 +18,7 @@ This project takes inspiration from the [CodelyTV TypeScript DDD Example](https:
 
 To get started with this Firebase learning project, follow these steps:
 
-1. Clone the repository: [repository-url]
+1. Clone the repository: [https://github.com/alejandromc23/firebase/]
 2. Install `pnpm` globally by running `npm install -g pnpm`.
 3. Install the necessary dependencies by running `pnpm install`.
 4. Configure Firebase by following the Firebase setup instructions provided in the project documentation.
