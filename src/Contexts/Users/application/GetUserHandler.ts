@@ -3,7 +3,11 @@ import { GetUserQuery } from "./GetUserQuery";
 import { UserRepository } from "../domain/UserRepository";
 
 export class GetUserHandler {
-  constructor(private readonly userRepository: UserRepository) {}
+  private userRepository: UserRepository;
+
+  constructor({ userRepository }: { userRepository: UserRepository }) {
+    this.userRepository = userRepository;
+  }
 
   async run(query: GetUserQuery): Promise<User> {
     const user = await this.userRepository.findById(query.id);

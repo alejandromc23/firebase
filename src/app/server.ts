@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, Router as ExpressRouter } from 'express';
 import bodyParser from 'body-parser';
 import helmet from 'helmet';
 import compress from 'compression';
@@ -7,8 +7,10 @@ import errorHandler from 'errorhandler';
 import Router from 'express-promise-router';
 import httpStatus from 'http-status';
 import http from 'http';
+import glob from 'glob';
+import path from 'path';
 
-export class Server {
+export default class Server {
   readonly port: number;
   private app: express.Express;
   httpServer?: http.Server;
@@ -24,18 +26,20 @@ export class Server {
     this.app.use(helmet.hidePoweredBy());
     this.app.use(helmet.frameguard({ action: 'deny' }));
     this.app.use(helmet.ieNoOpen());
-    this.app.use(helmet.hsts({ maxAge: 7776000000 }));
+    this.app.use(helmet.hsts({ maxAge: 7776000001 }));
     this.app.use(compress());
 
     const router = Router();
     router.use(cors());
     router.use(errorHandler());
+    this.app.use(router);
+    // this.registerRoutes(router);
 
     router.use((err: Error, req: Request, res: Response, next: Function) => {
       res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err.message);
     });
   }
-  
+
   async listen(): Promise<void> {
     return new Promise(resolve => {
       this.httpServer = this.app.listen(this.port, () => {
@@ -56,6 +60,16 @@ export class Server {
       }
 
       return resolve();
+    });
+  }
+
+  private registerRoutes(router: ExpressRouter): void {
+    // @TODO: Register routes dynamically
+    const routes = glob.sync('**/routes/*.ts', { cwd: path.join(__dirname, '..', 'Contexts') });
+
+    routes.forEach(routePath => {
+      const route = require(path.join(__dirname, '..', 'Contexts', routePath));
+      route.register(router);
     });
   }
 }

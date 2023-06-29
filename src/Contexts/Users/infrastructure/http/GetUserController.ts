@@ -1,15 +1,19 @@
 import { Request, Response } from "express";
-
-import { Controller } from "./controller";
-import { GetUserHandler } from "../../Contexts/Users/application/GetUserHandler";
 import httpStatus from "http-status";
 
+import { Controller } from "../../../Shared/infrastructure/http/controller"
+import { GetUserHandler } from "../../application/GetUserHandler";
+
 export class GetUserController implements Controller {
-  constructor(private readonly getUser: GetUserHandler) {}
+  private getUserHandler: GetUserHandler;
+
+  constructor({ getUserHandler }: { getUserHandler: GetUserHandler }) {
+    this.getUserHandler = getUserHandler;
+  }
 
   async run(req: Request, res: Response): Promise<void> {
     const { id } = req.params;
-    const user = await this.getUser.run(id);
+    const user = await this.getUserHandler.run(id);
     if (!user) {
       res.status(httpStatus.NOT_FOUND).send();
       return;
