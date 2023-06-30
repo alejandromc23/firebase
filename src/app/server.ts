@@ -7,8 +7,8 @@ import errorHandler from 'errorhandler';
 import Router from 'express-promise-router';
 import httpStatus from 'http-status';
 import http from 'http';
-import glob from 'glob';
 import path from 'path';
+import { glob } from 'glob';
 
 export default class Server {
   readonly port: number;
@@ -33,7 +33,7 @@ export default class Server {
     router.use(cors());
     router.use(errorHandler());
     this.app.use(router);
-    // this.registerRoutes(router);
+    this.registerRoutes(router);
 
     router.use((err: Error, req: Request, res: Response, next: Function) => {
       res.status(httpStatus.INTERNAL_SERVER_ERROR).send(err.message);
@@ -64,7 +64,6 @@ export default class Server {
   }
 
   private registerRoutes(router: ExpressRouter): void {
-    // @TODO: Register routes dynamically
     const routes = glob.sync('**/routes/*.ts', { cwd: path.join(__dirname, '..', 'Contexts') });
 
     routes.forEach(routePath => {
