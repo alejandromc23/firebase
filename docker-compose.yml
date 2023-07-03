@@ -2,11 +2,14 @@ version: "3.8"
 
 services:
   server:
+    container_name: firebase_server
+    command: dumb-init pnpm dev
     build:
       context: .
       dockerfile: docker/Dockerfile
     env_file:
       - .env
-    command: dumb-init pnpm dev
+    ports:
+      - ${PORT:-3000}:${PORT:-3000}
     volumes:
       - .:/usr/src/app

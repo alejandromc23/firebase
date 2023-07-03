@@ -63,12 +63,8 @@ export default class Server {
     });
   }
   
-  isListening(): boolean {
-    return this.httpServer.listening;
-  }
-
   private registerRoutes(router: ExpressRouter): void {
-    const routes = glob.sync('**/routes/*', { cwd: path.join(__dirname, '..', 'Contexts') });
+    const routes = glob.sync('**/routes/*.ts', { cwd: path.join(__dirname, '..', 'Contexts') });
 
     routes.forEach(routePath => {
       const route = require(path.join(__dirname, '..', 'Contexts', routePath));
