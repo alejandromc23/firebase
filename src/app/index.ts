@@ -30,7 +30,7 @@ const stopServer = async () => {
 };
 
 process.on('SIGTERM', async () => {
-  if (server.isListening) {
+  if (server.isListening()) {
     return await stopServer();
   }
 
