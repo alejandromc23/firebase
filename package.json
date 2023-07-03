@@ -4,8 +4,12 @@
   "description": "",
   "main": "server/index.js",
   "scripts": {
+    "start": "node dist/src/app/index.js",
     "dev": "pnpm i --frozen-lockfile & nodemon --config nodemon.json",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "tsc -p .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "install:ci": "pnpm install --frozen-lockfile",
+    "install:ci:prod": "pnpm install --frozen-lockfile --prod --prefer-offline"
   },
   "keywords": [],
   "author": "",

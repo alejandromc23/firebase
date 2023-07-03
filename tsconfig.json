@@ -9,8 +9,12 @@
     "allowJs": true,
     "resolveJsonModule": true,
   },
-  "include": ["server/**/*.ts"],
+  "include": ["src/**/*.ts", "firebase-key.json"],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    ".pnpm-store",
+    "dist",
+    ".github",
+    ".gitignore",
   ]
 }

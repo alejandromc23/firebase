@@ -1,27 +1,40 @@
 import dotenv from 'dotenv';
-
 import Server from './server';
 
 dotenv.config();
 
-try {
-  const server = new Server(Number(process.env.PORT) || 3000);
+const { PORT = 3001, NODE_ENV } = process.env;
 
-  const httpApp = server.listen().then(() => {
-    console.log(
-      `  App is running at http://localhost:${server.port} in ${process.env.NODE_ENV} mode`
-    );
-      console.log('  Press CTRL-C to stop\n');
-  });
+const server = new Server(Number(PORT));
 
-  process.on('SIGINT', () => {
-    console.log('\n  Stopping server...');
-    httpApp.then(() => {
-      server.stop().then(() => {
-        process.exit();
-      });
-    });
-  });
-} catch (error) {
-  console.log('uncaughtException', error);
-}
+const startServer = async () => {
+  try {
+    await server.listen();
+    console.log(`App is running at http://localhost:${server.port} in ${NODE_ENV} mode`);
+    console.log('Press CTRL-C to stop\n');
+  } catch (error) {
+    console.log('Error starting server:', error);
+    process.exit(1);
+  }
+};
+
+const stopServer = async () => {
+  console.log('\nStopping server...');
+  try {
+    await server.stop();
+    console.log('Server stopped successfully');
+  } catch (error) {
+    console.log('Error stopping server:', error);
+    process.exit(1);
+  } 
+};
+
+process.on('SIGTERM', async () => {
+  if (server.isListening) {
+    return await stopServer();
+  }
+
+  process.exit(0);
+});
+
+startServer();

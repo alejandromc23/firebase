@@ -62,6 +62,10 @@ export default class Server {
       return resolve();
     });
   }
+  
+  isListening(): boolean {
+    return this.httpServer.listening;
+  }
 
   private registerRoutes(router: ExpressRouter): void {
     const routes = glob.sync('**/routes/*', { cwd: path.join(__dirname, '..', 'Contexts') });
