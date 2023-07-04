@@ -8,7 +8,7 @@
     "dev": "pnpm i --frozen-lockfile & nodemon --config nodemon.json",
     "build": "tsc -p .",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "install:ci": "pnpm install --frozen-lockfile",
+    "install:ci:dev": "pnpm install --frozen-lockfile",
     "install:ci:prod": "pnpm install --frozen-lockfile --production --prefer-offline"
   },
   "keywords": [],

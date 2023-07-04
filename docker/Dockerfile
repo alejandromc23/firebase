@@ -3,9 +3,21 @@
 # --------------------------------------------
 FROM node:lts-alpine AS base
 
-# Install bash and dumb-init
+# Install bash, dumb-init and pnpm
 RUN apk add --no-cache bash dumb-init && \
     npm i -g pnpm@7.33.3
+
+#---------------------------------------------
+# Dependencies image
+# --------------------------------------------
+FROM base AS dependencies
+WORKDIR /usr/src/app
+
+COPY package.json pnpm-lock.yaml ./
+
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install:ci:prod 
+
+RUN pnpm install --frozen-lockfile --prod
 
 # --------------------------------------------
 # Build image
@@ -13,31 +25,24 @@ RUN apk add --no-cache bash dumb-init && \
 FROM base AS build
 WORKDIR /usr/src/app
 
-COPY . .
+COPY package.json pnpm-lock.yaml tsconfig.json firebase-key.json ./
+COPY src ./src
 
-RUN pnpm install --frozen-lockfile && pnpm build
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install:ci:dev
+
+RUN pnpm build
 
 # --------------------------------------------
 # Production image
 # --------------------------------------------
-FROM node:lts-alpine AS production
+FROM base AS production
 WORKDIR /usr/src/app
+ENV NODE_ENV=production
 
-# Copy bash and dumb-init from base
-COPY --from=base /bin/bash /bin/bash
-COPY --from=base /usr/bin/dumb-init /usr/bin/dumb-init
-
-# Reinstall bash pnpm
-RUN apk add --no-cache bash && \
-    npm i -g pnpm@7.33.3
-
-# Copy necessary files and dependencies from the build stage
-COPY --from=build /usr/src/app/dist ./dist
-COPY --from=build /usr/src/app/package.json .
-COPY --from=build /usr/src/app/pnpm-lock.yaml .
-
-# Install production dependencies
-RUN pnpm install --production --frozen-lockfile
+# Copy necessary files and dependencies
+COPY --chown=node:node --from=dependencies /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=dependencies /usr/src/app/package.json ./package.json
+COPY --chown=node:node --from=build /usr/src/app/dist ./dist
 
 # Use the non-root user 'node' to run the application
 USER node
