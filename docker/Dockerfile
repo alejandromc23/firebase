@@ -24,10 +24,13 @@ RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install
 # --------------------------------------------
 FROM base AS build
 
-COPY package.json pnpm-lock.yaml tsconfig.json firebase-key.json src ./
+COPY package.json pnpm-lock.yaml  ./
 
-RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install:ci:dev && \
-    pnpm build
+RUN --mount=type=cache,id=pnpm,target=/root/.local/share/pnpm/store pnpm install:ci:dev
+
+COPY tsconfig.json firebase-key.json src ./
+
+RUN pnpm build
 
 # --------------------------------------------
 # Production image
